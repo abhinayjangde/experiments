@@ -14,6 +14,9 @@ importers:
       '@langchain/google':
         specifier: ^0.1.0
         version: 0.1.0(@langchain/core@1.1.24(openai@6.21.0(zod@4.3.6)))
+      '@langchain/langgraph':
+        specifier: ^1.1.4
+        version: 1.1.4(@langchain/core@1.1.24(openai@6.21.0(zod@4.3.6)))(zod@4.3.6)
       '@langchain/openai':
         specifier: ^1.2.7
         version: 1.2.7(@langchain/core@1.1.24(openai@6.21.0(zod@4.3.6)))

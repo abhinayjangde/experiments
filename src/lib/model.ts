@@ -1,14 +1,27 @@
-import { createAgent } from "langchain";
 import { ChatOpenAI } from "@langchain/openai";
-import { ChatGoogle } from "@langchain/google";
+import { createAgent } from "langchain";
+import { webSearchTool } from "./tools.js";
 
-const chatgpt = new ChatOpenAI({ modelName: process.env.OPENAI_MODEL || "gpt-5-mini-2025-08-07" });
-const gemini = new ChatGoogle("gemini-2.5-flash");
+const chatgpt = new ChatOpenAI({
+  model: process.env.OPENAI_MODEL || "gpt-4o",
+  temperature: 0.7,
+  streaming: true,
+});
 
-
+// Create agent with tools using LangChain's createAgent
+// Based on latest docs: https://docs.langchain.com/oss/javascript/langchain/agents
 const agent = createAgent({
-    model: chatgpt
-})
+  model: chatgpt,
+  tools: [webSearchTool],
+  systemPrompt: `You are a helpful AI assistant with access to web search.
 
+When answering questions about current events, news, or time-sensitive information, use the web_search tool to get up-to-date information.
 
-export default agent
+Guidelines:
+- Always cite your sources using [1], [2], etc. format when using web search results
+- Be concise but thorough in your responses
+- If you're unsure about current information, use the web search tool
+- Format search results clearly with proper citations`,
+});
+
+export default agent;

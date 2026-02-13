@@ -1,23 +1,23 @@
-import { Ollama } from "ollama";
-import z from 'zod';
-import { createAgent, tool, createMiddleware, modelCallLimitMiddleware } from "langchain";
+import { tool } from "langchain";
+import * as z from "zod";
+import { webSearch, formatSearchResultsForLLM } from "../services/search.service.js";
 
-const client = new Ollama();
+const webSearchTool = tool(
+  async ({ query }) => {
+    console.log(`🔍 Performing web search: ${query}`);
+    const results = await webSearch(query);
+    const formatted = formatSearchResultsForLLM(results);
+    console.log(`✅ Found ${results.length} results`);
+    return formatted;
+  },
+  {
+    name: "web_search",
+    description:
+      "Search the web for current information, news, facts, or any up-to-date data. Use this when the user asks about recent events, current news, or information that may have changed after your training cutoff. Returns search results with citations.",
+    schema: z.object({
+      query: z.string().describe("The search query to find relevant information"),
+    }),
+  }
+);
 
-// web search tool
-const search = tool(
-    async ({ query }) => {
-        const results = await client.webSearch({ query, maxResults: 3 });
-        console.log("Search results:", results.results);
-        return JSON.stringify(results, null, 2);
-    },
-    {
-        name: "search",
-        description: "Useful for searching the web for up-to-date information. Input should be a search query.",
-        schema: z.object({
-            query: z.string().describe("The search query to find relevant information.")
-        })
-    }
-)
-
-export { search }
+export { webSearchTool };
