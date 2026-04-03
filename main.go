@@ -26,7 +26,20 @@ func main() {
 	if host == "" {
 		host = "localhost"
 	}
-	dsn := "host=" + host + " user=" + os.Getenv("DB_USER") + " password=" + os.Getenv("DB_PASSWORD") + " dbname=" + os.Getenv("DB_NAME") + " port=5432 sslmode=disable TimeZone=UTC"
+	user := os.Getenv("DB_USER")
+	if user == "" {
+		user = "myuser"
+	}
+	password := os.Getenv("DB_PASSWORD")
+	if password == "" {
+		password = "mypassword"
+	}
+	dbname := os.Getenv("DB_NAME")
+	if dbname == "" {
+		dbname = "mydb"
+	}
+
+	dsn := "host=" + host + " user=" + user + " password=" + password + " dbname=" + dbname + " port=5432 sslmode=disable TimeZone=UTC"
 
 	// Retry connecting to the database
 	for i := 0; i < 10; i++ {
