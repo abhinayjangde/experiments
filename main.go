@@ -1,8 +1,103 @@
 package main
 
-func main() {
+import (
+	"log"
+	"net/http"
 
-	for i := range 5 {
-		println(i + 1)
+	"github.com/gin-gonic/gin"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+)
+
+type Todo struct {
+	ID        uint   `json:"id" gorm:"primaryKey"`
+	Title     string `json:"title" binding:"required"`
+	Completed bool   `json:"completed"`
+}
+
+var db *gorm.DB
+
+func main() {
+	var err error
+	// Match credentials from docker-compose.yml
+	dsn := "host=localhost user=myuser password=mypassword dbname=mydb port=5432 sslmode=disable TimeZone=UTC"
+
+	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("failed to connect database: %v", err)
 	}
+
+	// Auto Migrate the schema
+	db.AutoMigrate(&Todo{})
+
+	router := gin.Default()
+
+	router.POST("/todos", createTodo)
+	router.GET("/todos", getTodos)
+	router.GET("/todos/:id", getTodoByID)
+	router.PUT("/todos/:id", updateTodo)
+	router.DELETE("/todos/:id", deleteTodo)
+
+	router.Run(":8080")
+}
+
+func createTodo(c *gin.Context) {
+	var todo Todo
+	if err := c.ShouldBindJSON(&todo); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	db.Create(&todo)
+	c.JSON(http.StatusCreated, todo)
+}
+
+func getTodos(c *gin.Context) {
+	var todos []Todo
+	db.Find(&todos)
+	c.JSON(http.StatusOK, todos)
+}
+
+func getTodoByID(c *gin.Context) {
+	id := c.Param("id")
+	var todo Todo
+
+	if err := db.First(&todo, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Todo not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, todo)
+}
+
+func updateTodo(c *gin.Context) {
+	id := c.Param("id")
+	var todo Todo
+
+	if err := db.First(&todo, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Todo not found"})
+		return
+	}
+
+	var input Todo
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	db.Model(&todo).Updates(input)
+	c.JSON(http.StatusOK, todo)
+}
+
+func deleteTodo(c *gin.Context) {
+	id := c.Param("id")
+	var todo Todo
+
+	if err := db.First(&todo, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Todo not found"})
+		return
+	}
+
+	db.Delete(&todo)
+	c.JSON(http.StatusOK, gin.H{"message": "Todo deleted successfully"})
 }
