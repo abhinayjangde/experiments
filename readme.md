@@ -1,5 +1,0 @@
-
-# Sync
-    pip install "fastapi[standard]" sqlalchemy pymysql
-# Async
-    pip install "fastapi[standard]" sqlalchemy[asyncio] aiomysql
