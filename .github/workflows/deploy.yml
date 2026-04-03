@@ -20,6 +20,14 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/experiments
+
+            # Write .env file from GitHub secrets
+            cat > .env << EOF
+            DB_USER=${{ secrets.DB_USER }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            EOF
+            
             # Pull latest code
             git pull origin main
 
