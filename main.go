@@ -26,7 +26,7 @@ func main() {
 	if host == "" {
 		host = "localhost"
 	}
-	dsn := "host=" + host + " user=myuser password=mypassword dbname=mydb port=5432 sslmode=disable TimeZone=UTC"
+	dsn := "host=" + host + " user=" + os.Getenv("DB_USER") + " password=" + os.Getenv("DB_PASSWORD") + " dbname=" + os.Getenv("DB_NAME") + " port=5432 sslmode=disable TimeZone=UTC"
 
 	// Retry connecting to the database
 	for i := 0; i < 10; i++ {
@@ -54,7 +54,7 @@ func main() {
 	router.DELETE("/todos/:id", deleteTodo)
 
 	router.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "healthy"})
+		c.JSON(http.StatusOK, gin.H{"status": "healthy", "timestamp": time.Now().Format(time.RFC3339), "app": "Go Lang Todo API"})
 	})
 
 	router.Run(":8080")
