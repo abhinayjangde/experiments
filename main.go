@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
@@ -20,11 +22,24 @@ var db *gorm.DB
 func main() {
 	var err error
 	// Match credentials from docker-compose.yml
-	dsn := "host=localhost user=myuser password=mypassword dbname=mydb port=5432 sslmode=disable TimeZone=UTC"
+	host := os.Getenv("DB_HOST")
+	if host == "" {
+		host = "localhost"
+	}
+	dsn := "host=" + host + " user=myuser password=mypassword dbname=mydb port=5432 sslmode=disable TimeZone=UTC"
 
-	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	// Retry connecting to the database
+	for i := 0; i < 10; i++ {
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		if err == nil {
+			break
+		}
+		log.Printf("failed to connect database, retrying in 2 seconds... (%d/10)", i+1)
+		time.Sleep(2 * time.Second)
+	}
+
 	if err != nil {
-		log.Fatalf("failed to connect database: %v", err)
+		log.Fatalf("failed to connect database after retries: %v", err)
 	}
 
 	// Auto Migrate the schema
