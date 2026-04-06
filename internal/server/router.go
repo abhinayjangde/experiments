@@ -4,10 +4,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/abhinayjangde/todo/internal/notes"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewRouter() *gin.Engine {
+func NewRouter(database *mongo.Database) *gin.Engine {
 	r := gin.Default()
 
 	r.GET("/health", func(ctx *gin.Context) {
@@ -21,6 +23,8 @@ func NewRouter() *gin.Engine {
 	r.GET("/", func(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "Server is running...")
 	})
+
+	notes.RegisterRoutes(r, database)
 
 	return r
 }
