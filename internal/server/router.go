@@ -21,7 +21,7 @@ func NewRouter(database *mongo.Database) *gin.Engine {
 	})
 
 	r.GET("/", func(ctx *gin.Context) {
-		ctx.String(http.StatusOK, "Server is running...")
+		ctx.String(http.StatusOK, "Welcome to the Todo API! Use /health to check the health of the server.")
 	})
 
 	notes.RegisterRoutes(r, database)
