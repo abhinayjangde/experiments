@@ -1,5 +1,6 @@
 import { prisma } from "../../lib/db.js";
-
+import type { IUser } from "../../services/user.js";
+import { UserService } from "../../services/user.js";
 
 export const resolvers = {
     queries: {
@@ -9,16 +10,8 @@ export const resolvers = {
         },
     },
     mutations: {
-        createUser: async (_: any, args: any) => {
-            const { email, name, password } = args;
-            const user = await prisma.user.create({
-                data: {
-                    email,
-                    name,
-                    password,
-                },
-            });
-            return user;
+        createUser: async (_: any, args: IUser) => {
+            return await UserService.createUser(args);
         },
     }
 }
