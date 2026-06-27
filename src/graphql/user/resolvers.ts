@@ -4,8 +4,20 @@ import { UserService } from "../../services/user.js";
 
 export const resolvers = {
     queries: {
+        posts: async () => {
+            const posts = await prisma.post.findMany({
+                include: {
+                    author: true
+                }
+            });
+            return posts;
+        },
         users: async () => {
-            const users = await prisma.user.findMany();
+            const users = await prisma.user.findMany({
+                include: {
+                    posts: true
+                }
+            });
             return users;
         },
     },

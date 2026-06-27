@@ -4,5 +4,15 @@ export const typeDefs = `#graphql
     id: Int!
     email: String!
     name: String
+    posts: [Post!]!
+  }
+
+  type Post {
+    id: Int!
+    title: String!
+    content: String
+    published: Boolean!
+    author: User!
+    createdAt: String!
   }
 `;
