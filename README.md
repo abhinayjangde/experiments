@@ -1,5 +1,7 @@
 
 
+This guide teaches you how to containerize Go applications using Docker.
+https://docs.docker.com/guides/golang/
 
 ## automatically rebuild/reload docker-compose file
 ```yml
